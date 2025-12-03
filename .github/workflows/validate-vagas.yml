@@ -1,0 +1,46 @@
+name: Validate vagas data
+on:
+  pull_request:
+    paths:
+      - 'aquario-vagas/centro-de-informatica/**.json'
+  push:
+    paths:
+      - 'aquario-vagas/centro-de-informatica/**.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout vagas repo
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate JSON schema and entity_slug linkage
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const vagasDir = path.join('aquario-vagas','centro-de-informatica');
+          if (!fs.existsSync(vagasDir)) { console.log('No vagas dir, nothing to validate'); process.exit(0); }
+          const errs = [];
+          const isBRDate = (s)=> /^\d{2}\/\d{2}\/\d{4}$/.test(s);
+          for (const f of fs.readdirSync(vagasDir)) {
+            if (!f.endsWith('.json')) continue;
+            const p = path.join(vagasDir, f);
+            let data;
+            try { data = JSON.parse(fs.readFileSync(p,'utf8')); }
+            catch(e){ errs.push(`${f}: invalid JSON`); continue; }
+            const req = ['id','titulo','descricao','tipoVaga','criadoEm','entidade','areas','prazo'];
+            for (const k of req) if (!(k in data)) errs.push(`${f}: missing ${k}`);
+            if (data.criadoEm && !isBRDate(String(data.criadoEm))) errs.push(`${f}: criadoEm must be DD/MM/AAAA`);
+            if (data.prazo && !isBRDate(String(data.prazo))) errs.push(`${f}: prazo must be DD/MM/AAAA`);
+            if (!Array.isArray(data.areas)) errs.push(`${f}: areas must be an array`);
+            if (data.responsabilidades && !Array.isArray(data.responsabilidades)) errs.push(`${f}: responsabilidades must be an array when present`);
+            if (data.requisitos && !Array.isArray(data.requisitos)) errs.push(`${f}: requisitos must be an array when present`);
+            if (data.etapasProcesso && !Array.isArray(data.etapasProcesso)) errs.push(`${f}: etapasProcesso must be an array when present`);
+          }
+          if (errs.length){ console.error(errs.join('\n')); process.exit(1); }
+          console.log('OK: vagas validas');
+          "
+
