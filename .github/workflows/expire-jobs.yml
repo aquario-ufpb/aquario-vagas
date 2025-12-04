@@ -19,7 +19,7 @@ jobs:
           node -e "
           const fs = require('fs');
           const path = require('path');
-          const base = path.join('aquario-vagas','centro-de-informatica');
+          const base = path.join('centro-de-informatica');
 
           const getTodaySaoPaulo = () => {
             const now = new Date();
