@@ -7,7 +7,7 @@
   "entidade": "laboratorios",
   "publicador": {
     "nome": "TRIL",
-    "urlFotoPerfil": "/ian.jpeg"
+    "urlFotoPerfil": "./assets/Aquario.png"
   },
   "areas": ["Design", "FrontEnd"],
   "prazo": "31/12/2025",
