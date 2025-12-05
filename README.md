@@ -104,7 +104,7 @@ Os seguintes valores são aceitos para a propriedade `entidade`:
 
 Cada publicador deve ter:
 
-- **`name`** (string): Nome completo
+- **`nome`** (string): Nome completo
 - **`urlFotoPerfil`** (string): Imagem de quem publicou
 
 ### Exemplo Completo
